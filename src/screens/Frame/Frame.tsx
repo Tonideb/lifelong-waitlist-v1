@@ -5,6 +5,8 @@ import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { CustomCursor } from "../../components/CustomCursor";
+import { SparkleGroup } from "../../components/Sparkle";
 
 // Define city data with their time zones
 type City = {
@@ -31,6 +33,8 @@ export const Frame = (): JSX.Element => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [sparklePosition, setSparklePosition] = useState<{ x: number; y: number } | null>(null);
+  const sparkleTimeoutRef = useRef<number>();
 
   // Update time every second
   useEffect(() => {
@@ -50,6 +54,33 @@ export const Frame = (): JSX.Element => {
 
     return () => clearInterval(interval);
   }, [selectedCity]);
+
+  const handleInputClick = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setSparklePosition({
+      x: e.clientX,
+      y: e.clientY,
+    });
+
+    // Clear previous timeout if it exists
+    if (sparkleTimeoutRef.current) {
+      window.clearTimeout(sparkleTimeoutRef.current);
+    }
+
+    // Remove sparkles after animation duration
+    sparkleTimeoutRef.current = window.setTimeout(() => {
+      setSparklePosition(null);
+    }, 700); // Match this with the animation duration
+  };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (sparkleTimeoutRef.current) {
+        window.clearTimeout(sparkleTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCodeChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -142,6 +173,10 @@ export const Frame = (): JSX.Element => {
 
   return (
     <div className="bg-transparent w-full h-screen overflow-hidden">
+      <CustomCursor />
+      {sparklePosition && (
+        <SparkleGroup x={sparklePosition.x} y={sparklePosition.y} />
+      )}
       <div className="w-full h-full">
         <div className="w-full h-full bg-white relative">
           <div className="w-full h-full relative">
@@ -173,6 +208,7 @@ export const Frame = (): JSX.Element => {
                           value={invitationCode[index]}
                           onChange={(e) => handleCodeChange(index, e)}
                           onKeyDown={(e) => handleKeyDown(index, e)}
+                          onClick={handleInputClick}
                           className="w-6 z-10 h-8 bg-transparent text-center text-[#fe240b] [font-family:'DM_Mono',Helvetica] font-normal text-2xl outline-none"
                           maxLength={1}
                         />
@@ -189,16 +225,11 @@ export const Frame = (): JSX.Element => {
                         value={invitationCode[5]}
                         onChange={(e) => handleCodeChange(5, e)}
                         onKeyDown={(e) => handleKeyDown(5, e)}
+                        onClick={handleInputClick}
                         className="w-6 z-10 h-8 bg-transparent text-center text-[#fe240b] [font-family:'DM_Mono',Helvetica] font-normal text-2xl outline-none"
                         maxLength={1}
                       />
-                  {/* 
-                    <img
-                      className="absolute w-14 h-[86px] top-[43px] left-[15px]"
-                      alt="Hover magic"
-                      src="/hover-magic.svg"
-                    />
-                  */}  </div>
+                    </div>
                   </div>
 
                   {/* OK button */}
@@ -238,7 +269,7 @@ export const Frame = (): JSX.Element => {
 
                   <div className="absolute top-10 left-0 w-full">
                     <Input
-                      className="border-t-0 border-l-0 border-r-0 border-b border-llcrouge rounded-none px-0 py-2 [font-family:'DM_Mono',Helvetica] font-normal text-llcrouge text-sm tracking-[0.56px] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+                      className="border-t-0  placeholder:text-llcrouge border-l-0 border-r-0 border-b border-llcrouge rounded-none px-0 py-2 [font-family:'DM_Mono',Helvetica] font-normal text-llcrouge text-sm tracking-[0.56px] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
                       placeholder="EMAIL"
                       value={email}
                       onChange={(e) => {
@@ -316,7 +347,7 @@ export const Frame = (): JSX.Element => {
             </Badge>
 
             {/* Time display */}
-            <div className="absolute w-32 h-[45px] top-[69px] left-[1320px] [font-family:'DM_Mono',Helvetica] font-normal text-[#fe240b] text-sm tracking-[0] leading-[14px] flex flex-col items-start">
+            <div className="absolute w-32 h-[45px] top-[69px] ouline-none left-[1320px] [font-family:'DM_Mono',Helvetica] font-normal text-[#fe240b] text-sm tracking-[0] leading-[14px] flex flex-col items-start">
               <Select
                 value={selectedCity.name}
                 onValueChange={(value) => {

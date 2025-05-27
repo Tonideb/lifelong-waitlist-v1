@@ -26,6 +26,44 @@
     --destructive-foreground: 210 40% 98%;
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
+    --cursor-x: 0px;
+    --cursor-y: 0px;
+  }
+
+  * {
+    cursor: none !important;
+  }
+
+  body {
+    cursor: none !important;
+  }
+
+  body::before {
+    content: "";
+    width: 20px;
+    height: 26px;
+    position: fixed;
+    left: var(--cursor-x);
+    top: var(--cursor-y);
+    pointer-events: none;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='26' viewBox='0 0 20 26' fill='white' stroke='%23fe240b' stroke-width='1'%3E%3Cpath d='M0.5,0.5 L0.5,19.5 L5.5,14.5 L9.5,24.5 L12.5,23.2 L8.5,13.5 L15.5,13.5 L0.5,0.5 Z'/%3E%3C/svg%3E");
+    transform: translate(0, 0);
+  }
+
+  @keyframes sparkle-fade-scale {
+    0% {
+      opacity: 1;
+      transform: scale(0) rotate(0deg);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1) rotate(180deg);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0) rotate(360deg);
+    }
   }
 }
 
